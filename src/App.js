@@ -9,7 +9,7 @@ import About from "./pages/About";
 import Features from "./pages/Features";
 import Tracker from "./pages/Tracker";
 import Contact from "./pages/Contact";
-
+import AddActivity from "./pages/AddActivity";
 import "./styles/App.css";
 import "./styles/Pages.css";
 
@@ -25,6 +25,7 @@ function App() {
             <Route path="/features" element={<Features />} />
             <Route path="/tracker" element={<Tracker />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/add-activity" element={<AddActivity />} />
           </Routes>
         </main>
         <Footer />

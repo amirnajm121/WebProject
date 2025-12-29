@@ -49,6 +49,9 @@ const Navbar = () => {
         >
           Contact
         </Link>
+
+        <Link to="/add-activity" className="nav-add-btn">+ Add Activity</Link>
+
       </nav>
     </header>
   );

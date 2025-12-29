@@ -29,7 +29,6 @@
   text-decoration: none;
 }
 
-/* Cards / layout */
 .card {
   background: white;
   border-radius: 12px;
@@ -44,7 +43,7 @@
   gap: 12px;
 }
 
-/* Tracker layout */
+
 .tracker-layout {
   display: grid;
   grid-template-columns: 1.1fr 1.4fr;
@@ -63,7 +62,7 @@
   margin-bottom: 8px;
 }
 
-/* Activity list */
+
 .activity-list {
   list-style: none;
   padding: 0;
@@ -94,7 +93,7 @@
   color: #374151;
 }
 
-/* Contact page */
+
 .contact-form label {
   display: flex;
   flex-direction: column;
@@ -115,9 +114,95 @@
   font: inherit;
 }
 
-/* Responsive: stack tracker on mobile */
+
 @media (max-width: 768px) {
   .tracker-layout {
     grid-template-columns: 1fr;
   }
+  
+}
+
+.add-activity-page {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.add-activity-container {
+  max-width: 600px;
+  width: 100%;
+}
+
+.add-activity-container h2 {
+  margin-bottom: 0.5rem;
+}
+
+.add-activity-container p {
+  margin-bottom: 1rem;
+}
+
+
+.add-activity-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;             
+  padding: 1.5rem;
+}
+
+
+.msg {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.msg.success {
+  color: #2ecc71;
+}
+
+.msg.error {
+  color: #e74c3c;
+}
+
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 600px) {
+  .form-row {
+    flex-direction: row;
+  }
+
+  .form-row .form-group {
+    flex: 1;
+  }
+}
+
+
+.full-width-btn {
+  width: 100%;
+  margin-top: 0.5rem;
 }

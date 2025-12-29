@@ -63,3 +63,24 @@
     display: flex;
   }
 }
+.nav-add-btn {
+  background: #4CAF50;
+  padding: 8px 14px;
+  border-radius: 6px;
+  color: white !important;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-left: 12px;
+  display: inline-block;
+  transition: 0.25s;
+}
+
+.nav-add-btn:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+.nav-add-btn:active {
+  transform: translateY(0);
+  background: #3b8a3f;
+}
