@@ -9,16 +9,24 @@ const path = require("path");
 const app = express();
 
 
-app.use(cors());
+const corsOptions = {
+  origin: [
+    "http://localhost:3000",
+    "https://elaborate-cendol-1e6c19.netlify.app"
+  ],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json()); 
 app.use("/images", express.static("images")); 
 
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",       
-  database: "healthtrackdb",
+  host: process.env.MYSQLHOST || "localhost",
+  user: process.env.MYSQLUSER || "root",
+  password: process.env.MYSQLPASSWORD || "",
+  database: process.env.MYSQLDATABASE || "healthtrackdb",
+  port: process.env.MYSQLPORT || 3306,
 });
 
 db.connect((err) => {
@@ -187,7 +195,7 @@ app.delete("/activities", (req, res) => {
 });
 
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log("HealthTrack backend running on port " + PORT);
 });
