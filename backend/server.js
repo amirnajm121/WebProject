@@ -1,188 +1,119 @@
-
-
 const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
+require("dotenv").config();
 
 const app = express();
+app.use(express.json());
 
-
+// CORS: allow local dev + Netlify
 const corsOptions = {
   origin: [
     "http://localhost:3000",
-    "https://elaborate-cendol-1e6c19.netlify.app"
+    "https://elaborate-cendol-1e6c19.netlify.app",
   ],
 };
-
 app.use(cors(corsOptions));
-app.use(express.json()); 
-app.use("/images", express.static("images")); 
 
+// Serve images folder (for uploaded activity images)
+app.use("/images", express.static(path.join(__dirname, "images")));
 
+// MySQL connection (local default OR Render+Railway via env)
 const db = mysql.createConnection({
-  host: process.env.MYSQLHOST || "localhost",
-  user: process.env.MYSQLUSER || "root",
-  password: process.env.MYSQLPASSWORD || "",
-  database: process.env.MYSQLDATABASE || "healthtrackdb",
-  port: process.env.MYSQLPORT || 3306,
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "healthtrackdb",
+  port: process.env.DB_PORT || 3306,
 });
 
 db.connect((err) => {
   if (err) {
-    console.log("Error connecting to MySQL:", err);
+    console.log("❌ Database connection failed:", err);
   } else {
-    console.log("Connected to MySQL (healthtrackdb)");
+    console.log("🟢 Connected to MySQL");
   }
 });
 
-
+// Multer config for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "images"); 
+    cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(
-      null,
-      file.originalname + "_" + Date.now() + path.extname(file.originalname)
-    );
+    cb(null, Date.now() + "_" + file.originalname);
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
+/* ========= ROUTES ========= */
 
-
+// Get all activities
 app.get("/activities", (req, res) => {
-  const q = `
-    SELECT a.ActivityID, a.Title, a.DurationMin, a.ActivityDate,
-           a.Notes, a.ImagePath,
-           c.Description AS Category
-    FROM Activity a
-    LEFT JOIN ActivityCategory c ON a.CategoryCode = c.CategoryCode
-    ORDER BY a.ActivityDate DESC, a.ActivityID DESC
-  `;
-  db.query(q, (err, results) => {
+  const q = "SELECT * FROM Activity ORDER BY ActivityDate DESC";
+  db.query(q, (err, data) => {
     if (err) {
       console.log("Error fetching activities:", err);
       return res.status(500).json(err);
     }
-    return res.json(results);
+    return res.json(data);
   });
 });
 
-
-
+// Get all categories
 app.get("/categories", (req, res) => {
-  const q = "SELECT CategoryCode, Description FROM ActivityCategory";
-  db.query(q, (err, results) => {
+  const q = "SELECT * FROM ActivityCategory";
+  db.query(q, (err, data) => {
     if (err) {
       console.log("Error fetching categories:", err);
       return res.status(500).json(err);
     }
-    return res.json(results);
+    return res.json(data);
   });
 });
 
-
-
+// Add new activity
 app.post("/activities", upload.single("image"), (req, res) => {
-  const title = req.body.title;
-  const category = req.body.category || null; 
-  const duration = req.body.duration || null;
-  const date = req.body.date || null;
-  const notes = req.body.notes || null;
+  const imgPath = req.file ? `/images/${req.file.filename}` : null;
 
-  
-  const imagePath = req.file ? "/images/" + req.file.filename : null;
+  const q =
+    "INSERT INTO Activity (Title, CategoryCode, DurationMin, ActivityDate, Notes, ImagePath) VALUES ?";
+  const values = [
+    [
+      req.body.title,
+      req.body.category,
+      req.body.duration,
+      req.body.date,
+      req.body.notes,
+      imgPath,
+    ],
+  ];
 
-  const q = `
-    INSERT INTO Activity (Title, CategoryCode, DurationMin, ActivityDate, Notes, ImagePath)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `;
-  const values = [title, category, duration, date, notes, imagePath];
-
-  db.query(q, values, (err, result) => {
+  db.query(q, [values], (err, result) => {
     if (err) {
       console.log("Error inserting activity:", err);
       return res.status(500).json(err);
     }
-    return res.json({ message: "Activity added successfully", id: result.insertId });
+    return res.json({ success: true, message: "Activity added" });
   });
 });
 
-
-
-app.get("/search/:id", (req, res) => {
-  const id = req.params.id;
-  const q = "SELECT * FROM Activity WHERE ActivityID = ?";
-  db.query(q, [id], (err, result) => {
-    if (err) {
-      console.log("Error fetching single activity:", err);
-      return res.status(500).json(err);
-    }
-    return res.json(result);
-  });
-});
-
-
-
-app.put("/update/:id", upload.single("image"), (req, res) => {
-  const id = req.params.id;
-
-  const title = req.body.title;
-  const category = req.body.category || null;
-  const duration = req.body.duration || null;
-  const date = req.body.date || null;
-  const notes = req.body.notes || null;
-
-  const newImagePath = req.file ? "/images/" + req.file.filename : null;
-
-  
-  let q;
-  let values;
-
-  if (newImagePath) {
-    q = `
-      UPDATE Activity
-      SET Title = ?, CategoryCode = ?, DurationMin = ?, ActivityDate = ?, Notes = ?, ImagePath = ?
-      WHERE ActivityID = ?
-    `;
-    values = [title, category, duration, date, notes, newImagePath, id];
-  } else {
-    q = `
-      UPDATE Activity
-      SET Title = ?, CategoryCode = ?, DurationMin = ?, ActivityDate = ?, Notes = ?
-      WHERE ActivityID = ?
-    `;
-    values = [title, category, duration, date, notes, id];
-  }
-
-  db.query(q, values, (err, result) => {
-    if (err) {
-      console.log("Error updating activity:", err);
-      return res.status(500).json(err);
-    }
-    return res.json({ message: "Activity updated successfully" });
-  });
-});
-
-
-
+// Delete single activity
 app.delete("/activities/:id", (req, res) => {
-  const id = req.params.id;
   const q = "DELETE FROM Activity WHERE ActivityID = ?";
-  db.query(q, [id], (err, result) => {
+  db.query(q, [req.params.id], (err, result) => {
     if (err) {
       console.log("Error deleting activity:", err);
       return res.status(500).json(err);
     }
-    return res.json({ message: "Activity deleted successfully" });
+    return res.json({ message: "Activity deleted" });
   });
 });
 
-
+// Delete all activities
 app.delete("/activities", (req, res) => {
   const q = "DELETE FROM Activity";
   db.query(q, (err, result) => {
@@ -194,8 +125,11 @@ app.delete("/activities", (req, res) => {
   });
 });
 
-
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log("HealthTrack backend running on port " + PORT);
+  console.log(`🚀 Backend running on port ${PORT}`);
 });
+
+
+ 
