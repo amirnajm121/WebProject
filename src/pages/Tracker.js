@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 const Tracker = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -8,7 +10,7 @@ const Tracker = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/activities")
+      .get(`${API_URL}/activities`)
       .then((res) => {
         setActivities(res.data);
         setLoading(false);
@@ -24,7 +26,7 @@ const Tracker = () => {
     if (!window.confirm("Delete this activity?")) return;
 
     axios
-      .delete(`http://localhost:5000/activities/${id}`)
+      .delete(`${API_URL}/activities/${id}`)
       .then((res) => {
         console.log(res.data);
         // remove deleted activity from state
@@ -40,7 +42,7 @@ const Tracker = () => {
     if (!window.confirm("Are you sure you want to delete ALL activities?")) return;
 
     axios
-      .delete("http://localhost:5000/activities")
+      .delete(`${API_URL}/activities`)
       .then((res) => {
         console.log(res.data);
         setActivities([]); // clear list in UI
@@ -125,7 +127,7 @@ const Tracker = () => {
                 <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
                   {act.ImagePath ? (
                     <img
-                      src={`http://localhost:5000${act.ImagePath}`}
+                      src={`${API_URL}${act.ImagePath}`}
                       alt="activity"
                       style={{
                         width: "60px",

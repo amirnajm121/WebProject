@@ -8,12 +8,17 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 
-// CORS: allow local dev + Netlify
+// CORS: allow local dev + Netlify (from env or defaults)
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  : [
+      "http://localhost:3000",
+      "https://elaborate-cendol-1e6c19.netlify.app",
+    ];
+
 const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "https://elaborate-cendol-1e6c19.netlify.app",
-  ],
+  origin: allowedOrigins,
+  credentials: true
 };
 app.use(cors(corsOptions));
 

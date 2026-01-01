@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 const AddActivity = () => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -15,7 +17,7 @@ const AddActivity = () => {
  
   useEffect(() => {
     axios
-      .get("http://localhost:5000/categories")
+      .get(`${API_URL}/categories`)
       .then((res) => {
         setCategories(res.data);
       })
@@ -40,7 +42,7 @@ const AddActivity = () => {
     }
 
     axios
-      .post("http://localhost:5000/activities", formData, {
+      .post(`${API_URL}/activities`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((res) => {
