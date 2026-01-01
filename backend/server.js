@@ -28,7 +28,6 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
 });
-
 console.log("Connecting to MySQL with:", {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
