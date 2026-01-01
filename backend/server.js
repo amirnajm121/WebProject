@@ -8,7 +8,7 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
  
-// Simple request logger so Render logs show incoming requests
+
 app.use((req, res, next) => {
   try {
     const body = req.body && Object.keys(req.body).length ? JSON.stringify(req.body) : "{}";
@@ -18,7 +18,7 @@ app.use((req, res, next) => {
   }
   next();
 });
-// CORS: allow local dev + Netlify (from env or defaults)
+
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
   : [
@@ -32,10 +32,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Serve images folder (for uploaded activity images)
+
 app.use("/images", express.static(path.join(__dirname, "images")));
 
-// MySQL connection (local default OR Render+Railway via env)
+
 const db = mysql.createConnection({
   host: process.env.DB_HOST ,
   user: process.env.DB_USER,
@@ -57,7 +57,7 @@ db.connect((err) => {
   }
 });
 
-// Multer config for file uploads
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "images");
@@ -69,9 +69,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-/* ========= ROUTES ========= */
 
-// Root health-check / simple docs
 app.get("/", (req, res) => {
   res.json({
     message: "HealthTrack API is running",
@@ -79,7 +77,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// Get all activities
+
 app.get("/activities", (req, res) => {
   const q = "SELECT * FROM Activity ORDER BY ActivityDate DESC";
   db.query(q, (err, data) => {
@@ -91,7 +89,7 @@ app.get("/activities", (req, res) => {
   });
 });
 
-// Get all categories
+
 app.get("/categories", (req, res) => {
   const q = "SELECT * FROM ActivityCategory";
   db.query(q, (err, data) => {
@@ -103,7 +101,7 @@ app.get("/categories", (req, res) => {
   });
 });
 
-// Add new activity
+
 app.post("/activities", upload.single("image"), (req, res) => {
   const imgPath = req.file ? `/images/${req.file.filename}` : null;
 
@@ -129,7 +127,7 @@ app.post("/activities", upload.single("image"), (req, res) => {
   });
 });
 
-// Delete single activity
+
 app.delete("/activities/:id", (req, res) => {
   const q = "DELETE FROM Activity WHERE ActivityID = ?";
   db.query(q, [req.params.id], (err, result) => {
@@ -141,7 +139,7 @@ app.delete("/activities/:id", (req, res) => {
   });
 });
 
-// Delete all activities
+
 app.delete("/activities", (req, res) => {
   const q = "DELETE FROM Activity";
   db.query(q, (err, result) => {
@@ -153,7 +151,7 @@ app.delete("/activities", (req, res) => {
   });
 });
 
-// Start server
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Backend running on port ${PORT}`);

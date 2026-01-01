@@ -29,7 +29,7 @@ const Tracker = () => {
       .delete(`${API_URL}/activities/${id}`)
       .then((res) => {
         console.log(res.data);
-        // remove deleted activity from state
+        
         setActivities((prev) => prev.filter((a) => a.ActivityID !== id));
       })
       .catch((err) => {
@@ -45,7 +45,7 @@ const Tracker = () => {
       .delete(`${API_URL}/activities`)
       .then((res) => {
         console.log(res.data);
-        setActivities([]); // clear list in UI
+        setActivities([]); 
       })
       .catch((err) => {
         console.log(err);
