@@ -7,7 +7,17 @@ require("dotenv").config();
 
 const app = express();
 app.use(express.json());
-
+ 
+// Simple request logger so Render logs show incoming requests
+app.use((req, res, next) => {
+  try {
+    const body = req.body && Object.keys(req.body).length ? JSON.stringify(req.body) : "{}";
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - body: ${body}`);
+  } catch (e) {
+    console.log(`Request logger error: ${e}`);
+  }
+  next();
+});
 // CORS: allow local dev + Netlify (from env or defaults)
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
