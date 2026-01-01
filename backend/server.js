@@ -61,6 +61,14 @@ const upload = multer({ storage });
 
 /* ========= ROUTES ========= */
 
+// Root health-check / simple docs
+app.get("/", (req, res) => {
+  res.json({
+    message: "HealthTrack API is running",
+    endpoints: ["/activities", "/categories"]
+  });
+});
+
 // Get all activities
 app.get("/activities", (req, res) => {
   const q = "SELECT * FROM Activity ORDER BY ActivityDate DESC";
